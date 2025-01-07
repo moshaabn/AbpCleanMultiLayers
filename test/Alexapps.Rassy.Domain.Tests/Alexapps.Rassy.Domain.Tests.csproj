@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Import Project="..\..\common.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>disable</Nullable>
+    <NoWarn>CS8632</NoWarn> <!-- Suppress this specific warning -->
+
+    <RootNamespace>MoShaabn.CleanArch</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\MoShaabn.CleanArch.Domain\MoShaabn.CleanArch.Domain.csproj" />
+    <ProjectReference Include="..\MoShaabn.CleanArch.TestBase\MoShaabn.CleanArch.TestBase.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,36 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install SSH Client
+      run: sudo apt-get install openssh-client
+    
+
+    - name: Deploy to Server
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /var/www/api/
+          eval "$(ssh-agent -s)"
+          ssh-add ~/.ssh/id_ed25519
+          git stash
+          git checkout main
+          git pull
+          cp ../appsetting.json src/MoShaabn.CleanArch.HttpApi.Host/appsettings.json
+          cp ../mappsettings.json src/MoShaabn.CleanArch.DbMigrator/appsettings.json
+          docker compose up db-migrator
+          docker compose up abpapp -d --build

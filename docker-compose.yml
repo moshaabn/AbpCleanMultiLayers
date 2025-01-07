@@ -1,0 +1,46 @@
+services:
+  postgres:
+    container_name: postgres_cont
+    image: postgres
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Gi0p6gS0IWVO
+      POSTGRES_DB: CleanArch
+    volumes:
+      - postgres-db:/var/lib/postgresql/data
+    restart: unless-stopped
+  abpapp:
+    build:
+      context: .
+      dockerfile: src/MoShaabn.CleanArch.HttpApi.Host/Dockerfile
+    container_name: abpapp
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - postgres
+      - db-migrator
+    networks:
+      - mynetwork
+    volumes:
+      - uploads-data:/app/wwwroot/uploads:rw
+  db-migrator:
+    build:
+      context: .
+      dockerfile: src/MoShaabn.CleanArch.DbMigrator/Dockerfile
+    depends_on:
+      - postgres
+    command: >
+      bash -c "dotnet MoShaabn.CleanArch.DbMigrator.dll"
+    networks:
+      - mynetwork
+volumes:
+  postgres-db:
+  uploads-data:     
+networks:
+  mynetwork:
+    driver: bridge
