@@ -5,7 +5,7 @@
 3. MappingProfiles
 4. internal storage
 5. docker setup
-... updated to last version for abp and dotnet core 9
+### ... updated to last version for abp and dotnet core 9
 
 ## About this solution
 
@@ -74,4 +74,3 @@ You can see the following resources to learn more about your solution and the AB
 
 * [Web Application Development Tutorial](https://abp.io/docs/latest/tutorials/book-store/part-01?UI=Blazor&DB=EF)
 * [Application Startup Template Structure](https://abp.io/docs/latest/solution-templates/layered-web-application)
-* [Angular UI: Basic Theme](https://abp.io/docs/latest/framework/ui/angular/basic-theme)
