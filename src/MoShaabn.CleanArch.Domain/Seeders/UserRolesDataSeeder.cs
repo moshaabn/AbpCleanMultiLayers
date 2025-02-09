@@ -11,7 +11,7 @@ using Volo.Abp.Identity;
 namespace MoShaabn.CleanArch.Seeders
 {
 
-    public class UserRolesDataSeeder : IDataSeedContributor, ITransientDependency
+    public class UserRolesDataSeeder : ITransientDependency
     {
         private readonly IdentityRoleManager roleManager;
 

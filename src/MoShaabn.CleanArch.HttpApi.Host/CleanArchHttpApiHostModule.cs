@@ -36,6 +36,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using MoShaabn.CleanArch.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc;
 namespace MoShaabn.CleanArch;
 
 [DependsOn(
@@ -50,7 +51,7 @@ namespace MoShaabn.CleanArch;
     typeof(AbpSwashbuckleModule)
 )]
 [DependsOn(typeof(AbpFluentValidationModule))]
-    public class CleanArchHttpApiHostModule : AbpModule
+public class CleanArchHttpApiHostModule : AbpModule
 {
     public override void PreConfigureServices(ServiceConfigurationContext context)
     {
@@ -72,8 +73,8 @@ namespace MoShaabn.CleanArch;
 
         context.Services.AddSingleton(usersConfig);
         context.Services.AddSingleton(jwtConfig);
-        
-        
+
+
     }
 
     public override void ConfigureServices(ServiceConfigurationContext context)
@@ -100,6 +101,13 @@ namespace MoShaabn.CleanArch;
             options.User.RequireUniqueEmail = false;
             options.SignIn.RequireConfirmedEmail = false;
             options.SignIn.RequireConfirmedPhoneNumber = true;
+        });
+
+        var services = context.Services;
+        services.Configure<MvcOptions>(options =>
+        {
+            // Register the custom exception filter
+            options.Filters.Add(new Filters.CustomUserFriendlyExceptionFilter());
         });
     }
 
@@ -177,7 +185,7 @@ namespace MoShaabn.CleanArch;
             });
 
 
-            
+
             c.AddSecurityRequirement(new OpenApiSecurityRequirement {
                 {
                     new OpenApiSecurityScheme
@@ -191,7 +199,7 @@ namespace MoShaabn.CleanArch;
                     new string[] { }
                 }
           });
-           
+
 
             // Optional: Include XML comments (if you have them)
             var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -287,9 +295,24 @@ namespace MoShaabn.CleanArch;
         {
             app.UseErrorPage();
         }
+        app.UseAbpRequestLocalization(options =>
+        {
+            // Change the order of RequestCultureProviders to prioritize Accept-Language
+            options.RequestCultureProviders = new List<IRequestCultureProvider>
+            {
+                    new AcceptLanguageHeaderRequestCultureProvider(),  //  Accept-Language Header
+                    new QueryStringRequestCultureProvider(),           //  Query String (`?culture=ar`)
+                    new CookieRequestCultureProvider()                 //  Cookie (if stored from a previous visit)
+            };
+        });
+
+        //  Force numbers to always be formatted in English
+        CultureInfo englishNumberFormat = new CultureInfo("en-US");
+        CultureInfo.DefaultThreadCurrentCulture = englishNumberFormat;
+        CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
         app.UseCorrelationId();
-        app.MapAbpStaticAssets();
+        app.UseStaticFiles();
         app.UseRouting();
         app.UseCors();
         app.UseAuthentication();
@@ -316,27 +339,5 @@ namespace MoShaabn.CleanArch;
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
-
-        var supportedCultures = new[]
-        {
-            new CultureInfo("en"),
-            new CultureInfo("ar")
-        };
-        var supportedUiCultures = new[]
-        {
-            new CultureInfo("en")
-        };
-        app.UseAbpRequestLocalization(options =>
-        {
-            options.DefaultRequestCulture = new RequestCulture("en");
-            options.SupportedCultures = supportedCultures;
-            options.SupportedUICultures = supportedUiCultures;
-            options.DefaultRequestCulture = new RequestCulture(culture: "en", uiCulture: "en");
-            options.RequestCultureProviders = new List<IRequestCultureProvider>
-            {
-            new QueryStringRequestCultureProvider(),
-            new CookieRequestCultureProvider()
-            };
-        });
     }
 }
