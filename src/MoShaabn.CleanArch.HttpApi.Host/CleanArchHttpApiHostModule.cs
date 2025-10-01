@@ -37,6 +37,7 @@ using System.Globalization;
 using MoShaabn.CleanArch.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using MoShaabn.CleanArch.Filters;
 namespace MoShaabn.CleanArch;
 
 [DependsOn(
@@ -199,6 +200,7 @@ public class CleanArchHttpApiHostModule : AbpModule
                     new string[] { }
                 }
           });
+            c.SchemaFilter<EnumSchemaFilter>();
 
 
             // Optional: Include XML comments (if you have them)
