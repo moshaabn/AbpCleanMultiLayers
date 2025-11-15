@@ -9,9 +9,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Volo.Abp.Data;
 using Volo.Abp.DependencyInjection;
-using Volo.Abp.Identity;
 using Volo.Abp.MultiTenancy;
 using Volo.Abp.TenantManagement;
+using Microsoft.Extensions.DependencyInjection;
+using Volo.Abp.Uow;
+using MoShaabn.CleanArch.Seeders;
 
 namespace MoShaabn.CleanArch.Data;
 
@@ -23,17 +25,23 @@ public class CleanArchDbMigrationService : ITransientDependency
     private readonly IEnumerable<ICleanArchDbSchemaMigrator> _dbSchemaMigrators;
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
+    private readonly IServiceProvider _serviceProvider;
+
 
     public CleanArchDbMigrationService(
         IDataSeeder dataSeeder,
         IEnumerable<ICleanArchDbSchemaMigrator> dbSchemaMigrators,
         ITenantRepository tenantRepository,
-        ICurrentTenant currentTenant)
+        ICurrentTenant currentTenant,
+        IServiceProvider serviceProvider)
     {
         _dataSeeder = dataSeeder;
         _dbSchemaMigrators = dbSchemaMigrators;
         _tenantRepository = tenantRepository;
         _currentTenant = currentTenant;
+        _serviceProvider = serviceProvider;
+
+
 
         Logger = NullLogger<CleanArchDbMigrationService>.Instance;
     }
@@ -100,10 +108,23 @@ public class CleanArchDbMigrationService : ITransientDependency
     {
         Logger.LogInformation($"Executing {(tenant == null ? "host" : tenant.Name + " tenant")} database seed...");
 
-        await _dataSeeder.SeedAsync(new DataSeedContext(tenant?.Id)
-            .WithProperty(IdentityDataSeedContributor.AdminEmailPropertyName, IdentityDataSeedContributor.AdminEmailDefaultValue)
-            .WithProperty(IdentityDataSeedContributor.AdminPasswordPropertyName, IdentityDataSeedContributor.AdminPasswordDefaultValue)
-        );
+        // Use the project's DatabaseSeeder directly to avoid executing ABP's default IdentityDataSeedContributor
+        // This prevents automatic seeding of default users/roles (admin) by ABP.
+        var context = new DataSeedContext(tenant?.Id);
+        try
+        {
+            var databaseSeeder = _serviceProvider.GetRequiredService<DatabaseSeeder>();
+            var uowManager = _serviceProvider.GetRequiredService<IUnitOfWorkManager>();
+            using (var uow = uowManager.Begin())
+            {
+                await databaseSeeder.SeedAsync(context);
+                await uow.CompleteAsync();
+            }
+        }
+        catch
+        {
+            // If resolving DatabaseSeeder fails (very unlikely), fallback to generic seeding above.
+        }
     }
 
     private bool AddInitialMigrationIfNotExist()
