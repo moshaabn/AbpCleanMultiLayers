@@ -21,7 +21,6 @@ public class CleanArchDbMigrationService : ITransientDependency
 {
     public ILogger<CleanArchDbMigrationService> Logger { get; set; }
 
-    private readonly IDataSeeder _dataSeeder;
     private readonly IEnumerable<ICleanArchDbSchemaMigrator> _dbSchemaMigrators;
     private readonly ITenantRepository _tenantRepository;
     private readonly ICurrentTenant _currentTenant;
@@ -29,13 +28,11 @@ public class CleanArchDbMigrationService : ITransientDependency
 
 
     public CleanArchDbMigrationService(
-        IDataSeeder dataSeeder,
         IEnumerable<ICleanArchDbSchemaMigrator> dbSchemaMigrators,
         ITenantRepository tenantRepository,
         ICurrentTenant currentTenant,
         IServiceProvider serviceProvider)
     {
-        _dataSeeder = dataSeeder;
         _dbSchemaMigrators = dbSchemaMigrators;
         _tenantRepository = tenantRepository;
         _currentTenant = currentTenant;
