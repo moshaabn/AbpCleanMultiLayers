@@ -266,3 +266,5 @@ src/MoShaabn.CleanArch.Blazor.Server.Tiered/Logs/*
 
 # Use abp install-libs to restore.
 # **/wwwroot/libs/*
+# ignore appsettings.json
+src/**/appsettings.json

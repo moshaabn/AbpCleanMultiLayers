@@ -20,6 +20,8 @@ This is a layered startup solution based on [Domain Driven Design (DDD)](https:/
 
 The solution comes with a default configuration that works out of the box. However, you may consider to change the following configuration before running your solution:
 
+* Copy appsettings.example.json to appsettings.json in both projects `MoShaabn.CleanArch.HttpApi.Host` and `MoShaabn.CleanArch.DbMigrator`.
+
 * Check the `ConnectionStrings` in `appsettings.json` files under the `MoShaabn.CleanArch.HttpApi.Host` and `MoShaabn.CleanArch.DbMigrator` projects and change it if you need.
 
 ### Before running the application
