@@ -201,6 +201,7 @@ public class CleanArchHttpApiHostModule : AbpModule
                 }
           });
             c.SchemaFilter<EnumSchemaFilter>();
+            c.OperationFilter<AcceptLanguageHeaderOperationFilter>();
 
 
             // Optional: Include XML comments (if you have them)
@@ -341,5 +342,27 @@ public class CleanArchHttpApiHostModule : AbpModule
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
         app.UseConfiguredEndpoints();
+    }
+    public class AcceptLanguageHeaderOperationFilter : IOperationFilter
+    {
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            if (operation.Parameters == null)
+            {
+                operation.Parameters = new List<OpenApiParameter>();
+            }
+
+            operation.Parameters.Add(new OpenApiParameter
+            {
+                Name = "Accept-Language",
+                In = ParameterLocation.Header,
+                Description = "Language preference for the response (e.g., en-US, ar, etc.)",
+                Required = false,
+                Schema = new OpenApiSchema
+                {
+                    Type = "string"
+                }
+            });
+        }
     }
 }
