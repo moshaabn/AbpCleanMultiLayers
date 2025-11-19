@@ -38,6 +38,7 @@ using MoShaabn.CleanArch.EntityFrameworkCore;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using MoShaabn.CleanArch.Filters;
+using Swashbuckle.AspNetCore.SwaggerGen;
 namespace MoShaabn.CleanArch;
 
 [DependsOn(
