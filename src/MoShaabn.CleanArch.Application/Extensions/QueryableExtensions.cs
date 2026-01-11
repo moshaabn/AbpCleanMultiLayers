@@ -96,31 +96,9 @@ namespace MoShaabn.CleanArch.Extensions
                 }
             }
 
-            var unpagedQuery = query.RemoveSkipTake();
-            int count = await unpagedQuery.CountAsync(cancellationToken);
+            int count = await query.CountAsync(cancellationToken);
             var result = await query.Skip(pageRequest.SkipCount).Take(pageRequest.MaxResultCount).ToListAsync(cancellationToken);
             return new PagedResultDto<T>(count, result);
-        }
-
-        public static IQueryable<T> RemoveSkipTake<T>(this IQueryable<T> source)
-        {
-            var newExpr = (Expression)new SkipTakeRemover().Visit(source.Expression);
-            return source.Provider.CreateQuery<T>(newExpr);
-        }
-
-        private class SkipTakeRemover : ExpressionVisitor
-        {
-            protected override Expression VisitMethodCall(MethodCallExpression node)
-            {
-                if (node.Method.DeclaringType == typeof(Queryable) &&
-                    (node.Method.Name == "Skip" || node.Method.Name == "Take"))
-                {
-                    // unwrap the source (argument 0) to drop Skip/Take
-                    return Visit(node.Arguments[0]);
-                }
-
-                return base.VisitMethodCall(node);
-            }
         }
 
         public static async Task<PagedResultDto<T>> WithPagingOptions<T>(this IQueryable<T> query,
