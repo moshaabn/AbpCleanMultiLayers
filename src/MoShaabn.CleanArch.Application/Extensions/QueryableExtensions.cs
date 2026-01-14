@@ -42,13 +42,13 @@ namespace MoShaabn.CleanArch.Extensions
                 query = (IQueryable<T>)genericMethod.Invoke(null, new object[] { query, expr });
             }
 
-            if (pageRequest.Filter != null && !string.IsNullOrEmpty(GetTerm(pageRequest.Filter)))
+            if (pageRequest.SearchTerm != null && !string.IsNullOrEmpty(GetTerm(pageRequest.SearchTerm)))
             {
-                if (!pageRequest.Filter.Contains(","))
+                if (!pageRequest.SearchTerm.Contains(","))
                 {
-                    var term = GetTerm(pageRequest.Filter);
-                    var operation = GetOperation(pageRequest.Filter);
-                    var field = GetField(pageRequest.Filter);
+                    var term = GetTerm(pageRequest.SearchTerm);
+                    var operation = GetOperation(pageRequest.SearchTerm);
+                    var field = GetField(pageRequest.SearchTerm);
                     if (GetOperation(operation, term) != "none")
                     {
                         if (string.IsNullOrEmpty(field))
@@ -67,10 +67,10 @@ namespace MoShaabn.CleanArch.Extensions
                     }
                 }
 
-                if (pageRequest.Filter.Contains(","))
+                if (pageRequest.SearchTerm.Contains(","))
                 {
                     // Multiple filters case (OR logic)
-                    var filters = pageRequest.Filter.Split(',').Select(c => c.Trim()).ToList();
+                    var filters = pageRequest.SearchTerm.Split(',').Select(c => c.Trim()).ToList();
                     var orExpressions = new List<Expression<Func<T, bool>>>();
 
                     foreach (var filter in filters)

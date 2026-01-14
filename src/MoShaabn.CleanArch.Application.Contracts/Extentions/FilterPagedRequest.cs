@@ -4,6 +4,6 @@ namespace MoShaabn.CleanArch.Extensions
 {
     public class FilterPagedRequest : PagedAndSortedResultRequestDto
     {
-        public string Filter { get; set; }
+        public string SearchTerm { get; set; }
     }
 }
